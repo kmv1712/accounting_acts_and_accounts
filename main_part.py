@@ -2,76 +2,32 @@ import os
 import xlrd
 import re
 import xlwings as xw
-import tkinter as tk
 
-"""
-Модуль для поиска информации в exel файле счета
-Обратить внимание, что иногда распознается с ошибками
-Таблица состоит из 10 колонок
-"""
 
-def window_start():
-    user = input('Добавить счет 1 \n Добавить акт по номеру счета 2')
+def console_start():
+    """
+    Спрашивает о пользователя, что добавить акт или счет
+    Консольное решение интерфейса
+    :return: вызывает фугкцию по добавление счета или акта
+    """
+    print('1 Добавить счет  \n2 Добавить акт по номеру счета')
+    user = input('Введите число:')
     if int(user) == 1:
         added_account()
     else:
         added_act()
 
-    # """
-    # Окно для выбора заносим счет или добавляем акт
-    # """
-    # win_user = tk.Tk()
-    # win_user.title("Начало")
-    # win_user.geometry('600x400+200+100')
-    # tk.Label(text=
-    #          'Добавить счет? \n'
-    #          'Добавить акт по номеру счета',
-    #          width=200, height=10, font='14'
-    #          ).pack()
-    # tk.Label(text='', height=0).pack()
-    # button1 = tk.Button(win_user, text='Добавить счет', width=0, height=0, font='12', command=added_account)
-    # button2 = tk.Button(win_user, text='Добавить акт по номеру счета', width=0, height=0, font='12', command=added_act)
-    # button3 = tk.Button(win_user, text='Закрыть', width=0, height=0, font='12', command=win_user.destroy)
-    # button1.pack(side='left')
-    # button2.pack(side='right')
-    # button3.pack(side='top')
-    # win_user.mainloop()
-    # return
 
-
-def window_check_price(account, price):
+def get_number_account(item_one_info_in_account_f_exсel):
     """
-    Функция выводит окно с распознаной ценой и номером счета
+    Ищем номер счета
     Args:
-        account: номер счета
-        price: цена
+        item_one_info_in_account_f_exсel: строка найденная по подстроке для счета 'СЧЕТ' или для акта 'ту №'
 
-    Returns:
-        Введеное значение пользователем
+    Returns: номер счета или акта
+
     """
-    win_user_check = tk.Tk()
-    win_user_check.title("Проверка")
-    win_user_check.geometry('600x400+200+100')
-    tk.Label(text=
-             'Провертье цену, возможно ошибка при распознание \n СЧЕТ: {0} \n Распознаная цена: {1}\n '
-             '\n введите цену если она не соответсвует цене в документе'
-             .format(account, price),
-             width=200, height=10, font='14'
-             ).pack()
-    entry_text = tk.StringVar()
-    entry = tk.Entry(win_user_check, width=30, textvariable=entry_text)
-    entry.insert(0, price)
-    entry.pack()
-    tk.Label(text='', height=0).pack()
-    button1 = tk.Button(win_user_check, text='ok', width=0, height=0, font='12', command=win_user_check.destroy)
-    button1.pack()
-    win_user_check.mainloop()
-    return entry_text.get()
-
-# Поиск номера счета
-def get_number_account(item_one_info_in_account_f_Exel):
-    number_account = re.findall('(\d+)', item_one_info_in_account_f_Exel)
-    # print(number_account[0])
+    number_account = re.findall('(\d+)', item_one_info_in_account_f_exсel)
     return number_account[0]
 
 
@@ -86,8 +42,17 @@ def get_number_account(item_one_info_in_account_f_Exel):
 
 
 # 11082018---------------1603
-def get_date_account(item_one_info_in_account_f_Exel):
-    date_account = re.findall('(\d\d\s\w\w+\s\d\d\d\d)', item_one_info_in_account_f_Exel)
+def get_date_account(item_one_info_in_account_f_excel):
+    """
+    Ищем дату в
+    и преобразуем из формата 01.01.1992 в 01 января 1992
+    Args:
+        item_one_info_in_account_f_excel: строка найденая по подстроке
+
+    Returns: Дату нужного вида
+
+    """
+    date_account = re.findall('(\d\d\s\w\w+\s\d\d\d\d)', item_one_info_in_account_f_excel)
     if not date_account:
         return False
     for date_account_one in date_account:
@@ -126,30 +91,28 @@ def get_date_account(item_one_info_in_account_f_Exel):
 
 
 # Функция возращает список из (номер счета, дата, прибор, сумма с НДС)
-def seach_need_info_in_account_f(info_in_account_f_Exel):
+def seach_need_info_in_account_f(info_in_account_f_excel):
     i = 0
     n = 0
     list_name_account_date_nds = []
     all_list_name_account_date_nds = []
-    # print(info_in_account_f_Exel)
-    for item_info_in_account_f_Exel in info_in_account_f_Exel:
-        # print(item_info_in_account_f_Exel)
-        for item_one_info_in_account_f_Exel in item_info_in_account_f_Exel:
-            if re.search(r'СЧЕТ', item_one_info_in_account_f_Exel):
+    for item_info_in_account_f_excel in info_in_account_f_excel:
+        for item_one_info_in_account_f_excel in item_info_in_account_f_excel:
+            if re.search(r'СЧЕТ', item_one_info_in_account_f_excel):
                 i += 1
-                number_account = get_number_account(item_one_info_in_account_f_Exel)
+                number_account = get_number_account(item_one_info_in_account_f_excel)
                 # print('Номер: ' + number_account)
                 list_name_account_date_nds.append(number_account)
-                date_account = get_date_account(item_one_info_in_account_f_Exel)
+                date_account = get_date_account(item_one_info_in_account_f_excel)
                 list_name_account_date_nds.append(date_account)
                 # print('Дата:' + date_account)
-            if re.search(r'ШТ', item_one_info_in_account_f_Exel):
+            if re.search(r'ШТ', item_one_info_in_account_f_excel):
                 n += 1
-                list_name_account_date_nds.append(item_info_in_account_f_Exel[0])
-                list_name_account_date_nds.append(item_info_in_account_f_Exel[7])
-                # print(item_info_in_account_f_Exel)
-                # print('Прибор: ' + item_info_in_account_f_Exel[0])
-                # print('Сумма с НДС: ' + item_info_in_account_f_Exel[7])
+                list_name_account_date_nds.append(item_info_in_account_f_excel[0])
+                list_name_account_date_nds.append(item_info_in_account_f_excel[7])
+                # print(item_info_in_account_f_excel)
+                # print('Прибор: ' + item_info_in_account_f_excel[0])
+                # print('Сумма с НДС: ' + item_info_in_account_f_excel[7])
     all_list_name_account_date_nds.append(list_name_account_date_nds)
     print('Количество счетов: ' + str(i))
     print('Количество позиций поверки: ' + str(n))
@@ -163,6 +126,7 @@ def seach_need_info_in_account_f(info_in_account_f_Exel):
 
 # Функция открытия основной таблицы Уралтест.xlsx
 def open_main_task():
+    name_sheet = 0
     name_main_task = os.getcwd() + '\\Уралтест.xlsx'
     open_main_task = xlrd.open_workbook(name_main_task)
     sheet_main_task = open_main_task.sheet_by_index(name_sheet)
@@ -183,7 +147,7 @@ def get_empty_line_in_table(name_sheet):
         sheet = rb.sheet_by_index(name_sheet)
         for i in range(0, 1000000000000):
             sheet.row_values(i)[0]
-    except:
+    except IndexError:
         i = i + 1
         return i
 
@@ -191,15 +155,11 @@ def get_empty_line_in_table(name_sheet):
 """Функция генерирует список all_list_name_account_date_nds
 по след маске [[номер_счета, дата, прибор, сумма с НДС], [-и-], ...]
 """
-
-
 def get_sort_all_list_name_account_date_nds(all_list_name_account_date_nds):
     n = 0
     j = 4
     sort_all_list_name_account_date_nds = []
     count_insert_list = len(all_list_name_account_date_nds[0]) / 4
-    # print(count_insert_list)
-    # print(len(all_list_name_account_date_nds[0]))
     for i in range(0, int(count_insert_list)):
         sort_all_list_name_account_date_nds.append(all_list_name_account_date_nds[0][n:j])
         n = n + 4
@@ -231,25 +191,21 @@ def add_info_in_main_f(empty_line_in_table, sort_all_list_name_account_date_nds)
         if len(check_price) == 2:
             xw.Range('G' + str(empty_line_in_table)).value = sort_all_list_name_account_date_nds[i][3]
         else:
-            entry = window_check_price(sort_all_list_name_account_date_nds[i][0], sort_all_list_name_account_date_nds[i][3])
-            # user_check = input(
-            #     'Провертье цену, возможно ошибка при распознание СЧЕТ:{0} Распознаная цена:{1} '
-            #     'и введите цену если она не соответсвует цене в документе'
-            #     .format(sort_all_list_name_account_date_nds[i][0], sort_all_list_name_account_date_nds[i][3])
-            # )
-            if entry:
-                xw.Range('G' + str(empty_line_in_table)).value = entry
+
+            print(
+                'Провертье цену (возможно ошибка при распознание)\nСЧЕТ: {0}\nРаспознаная цена: {1}\n'
+                'введите цену если она не соответсвует цене в документе или нажмите Enter'
+                .format(sort_all_list_name_account_date_nds[i][0], sort_all_list_name_account_date_nds[i][3])
+            )
+            user_check = input()
+
+            if user_check:
+                xw.Range('G' + str(empty_line_in_table)).value = user_check
             else:
                 xw.Range('G' + str(empty_line_in_table)).value = sort_all_list_name_account_date_nds[i][3]
         empty_line_in_table = empty_line_in_table + 1
-    wb.save()
-    wb.close()
-
-
-
-
-
-# ---------------------------------------------------------------------------------------------------------------------
+        wb.save()
+        wb.close()
 
 
 def get_act_number(item_one_info_in_act_f_Exel):
@@ -399,4 +355,4 @@ def added_act():
         add_act_in_main_f(empty_line_in_table, all_list_name_act_date_nds)
 
 
-window_start()
+console_start()
