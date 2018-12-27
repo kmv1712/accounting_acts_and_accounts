@@ -8,7 +8,8 @@ def console_start():
     """
     Спрашивает о пользователя, что добавить акт или счет
     Консольное решение интерфейса
-    :return: вызывает фугкцию по добавление счета или акта
+    Returns: вызывает фугкцию по добавление счета или акта
+
     """
     print('1 Добавить счет  \n2 Добавить акт по номеру счета')
     user = input('Введите число:')
@@ -124,20 +125,6 @@ def seach_need_info_in_account_f(info_in_account_f_excel):
     return all_list_name_account_date_nds
 
 
-# Функция открытия основной таблицы Уралтест.xlsx
-def open_main_task():
-    name_sheet = 0
-    name_main_task = os.getcwd() + '\\Уралтест.xlsx'
-    open_main_task = xlrd.open_workbook(name_main_task)
-    sheet_main_task = open_main_task.sheet_by_index(name_sheet)
-    # получаем значение первой ячейки A1
-    # val = sheet_f_account.row_values(0)[0]
-    # print(val)
-    # получаем список значений из всех записей
-    info_in_main_task_Exel = [sheet_main_task.row_values(rownum) for rownum in range(sheet_main_task.nrows)]
-    print(info_in_main_task_Exel)
-
-
 # Вылавливаем ошибку для нахождения последней строки и вычетаем 1 для продолжения работы программы
 # Находим пустую строку в тексте
 def get_empty_line_in_table(name_sheet):
@@ -149,7 +136,7 @@ def get_empty_line_in_table(name_sheet):
             sheet.row_values(i)[0]
     except IndexError:
         i = i + 1
-        return i
+        return int(i)
 
 
 """Функция генерирует список all_list_name_account_date_nds
@@ -193,7 +180,7 @@ def add_info_in_main_f(empty_line_in_table, sort_all_list_name_account_date_nds)
         else:
 
             print(
-                'Провертье цену (возможно ошибка при распознание)\nСЧЕТ: {0}\nРаспознаная цена: {1}\n'
+                '\nПровертье цену (возможно ошибка при распознание)\nСЧЕТ: {0}\nРаспознаная цена: {1}\n'
                 'введите цену если она не соответсвует цене в документе или нажмите Enter'
                 .format(sort_all_list_name_account_date_nds[i][0], sort_all_list_name_account_date_nds[i][3])
             )
@@ -295,6 +282,51 @@ def add_act_in_main_f(empty_line_in_table, all_list_name_act_date_nds):
     wb.close()
 
 
+def get_all_num_accounts_in_table(empty_line_in_table):
+    """
+    Функция возвращает все номера счетов в таблице
+    empty_line_in_table: последняя строка в табл.
+
+    Returns(list): список номеров счетов
+
+    """
+    all_num_accounts_in_table = []
+    wb = xw.Book('Уралтест.xlsx')
+    open_f_act = xlrd.open_workbook('Уралтест.xlsx')
+    sheet_f_act = open_f_act.sheet_by_index(0)
+    info_in_act = [sheet_f_act.row_values(rownum) for rownum in range(sheet_f_act.nrows)]
+    for i in range(3, empty_line_in_table):
+        num_account_main_table = sheet_f_act.row_values(i)[4]
+        if num_account_main_table:
+            all_num_accounts_in_table.append(int(sheet_f_act.row_values(i)[4]))
+    wb.close()
+    return all_num_accounts_in_table
+
+
+def check_acconts_main_table(sort_all_list_name_account_date_nds, all_num_accounts_in_table):
+    """
+    Функия проверяет есть ли счета с таким же номером в основной таблице
+    Args:
+        sort_all_list_name_account_date_nds:  Номера счетов которые будут добавлены. вместе с названием НДС и.т.д.
+        all_num_accounts_in_table: список всех номеров счетов
+
+    Returns: список с номерами счетов которых еще нет в таблице остальные не добавляет и сообщает пользователю
+
+    """
+    list_double_account = []
+    list_unique = []
+    key_in_list_sort_all_list = []
+    for attr_accont in sort_all_list_name_account_date_nds:
+       if attr_accont[0] in all_num_accounts_in_table:
+            list[list_double_account]
+    """
+    Остановился на том что решил проверять весь список
+    если добавляемй счет совпадает с имеющимся добавляем его номер в список и его позицию в общем списке
+    чтобы удалить его или добавить в зависимости от того как решит пользователь
+    """
+    pass
+
+
 def added_account():
     """
     Добавляем счет
@@ -310,23 +342,26 @@ def added_account():
         open_f_account = xlrd.open_workbook(name_f_account_info)
         sheet_f_account = open_f_account.sheet_by_index(0)
         # получаем список значений из всех записей
-        info_in_account_f_exel = [sheet_f_account.row_values(rownum) for rownum in range(sheet_f_account.nrows)]
+        info_in_account_f_excel = [sheet_f_account.row_values(rownum) for rownum in range(sheet_f_account.nrows)]
         # print(info_in_account_f_Exel)
 
-        # Функция выводит список в списке с дангыми номер, дата, прибор, сумма с НДС
-        all_list_name_account_date_nds = seach_need_info_in_account_f(info_in_account_f_exel)
-        # print(all_list_name_account_date_nds)
-
-        # Функция возращает список с даными с листа
-        # open_main_task()
+        # Функция выводит список в списке с данными номер, дата, прибор, сумма с НДС
+        all_list_name_account_date_nds = seach_need_info_in_account_f(info_in_account_f_excel)
 
         # Возращает номер последней строки таблицы
         empty_line_in_table = get_empty_line_in_table(name_sheet)
-        # print(empty_line_in_table)
 
         # Функция возращает список вида [[номер_счета, дата, прибор, сумма с НДС], [-и-], ...]
         sort_all_list_name_account_date_nds = get_sort_all_list_name_account_date_nds(all_list_name_account_date_nds)
-        # print(sort_all_list_name_account_date_nds)
+
+        # Функция возвращает список номеров всех счтетов в таблице Уралтест
+        all_num_accounts_in_table = get_all_num_accounts_in_table(empty_line_in_table)
+
+
+
+        # Функция проверяет нет ли приборов с таким же счетом
+        sort_all_list_name_account_date_nds = check_acconts_main_table(sort_all_list_name_account_date_nds,
+                                                                       all_num_accounts_in_table)
 
         # Функция добавления информации в таблицу
         add_info_in_main_f(empty_line_in_table, sort_all_list_name_account_date_nds)
