@@ -142,6 +142,8 @@ def get_empty_line_in_table(name_sheet):
 """Функция генерирует список all_list_name_account_date_nds
 по след маске [[номер_счета, дата, прибор, сумма с НДС], [-и-], ...]
 """
+
+
 def get_sort_all_list_name_account_date_nds(all_list_name_account_date_nds):
     n = 0
     j = 4
@@ -182,7 +184,7 @@ def add_info_in_main_f(empty_line_in_table, sort_all_list_name_account_date_nds)
             print(
                 '\nПровертье цену (возможно ошибка при распознание)\nСЧЕТ: {0}\nРаспознаная цена: {1}\n'
                 'введите цену если она не соответсвует цене в документе или нажмите Enter'
-                .format(sort_all_list_name_account_date_nds[i][0], sort_all_list_name_account_date_nds[i][3])
+                    .format(sort_all_list_name_account_date_nds[i][0], sort_all_list_name_account_date_nds[i][3])
             )
             user_check = input()
 
@@ -221,7 +223,7 @@ def seach_need_info_in_act_f(info_in_act_f_exel):
         for item_one_info_in_act_f_Exel in item_info_in_act_f_exel:
             if not re.search(r'РА №', str(item_one_info_in_act_f_Exel)) and \
                     (re.search(r'ЕК00', str(item_one_info_in_act_f_Exel)) or
-                    re.search(r'№ ЕК', str(item_one_info_in_act_f_Exel))):
+                         re.search(r'№ ЕК', str(item_one_info_in_act_f_Exel))):
                 date_account = get_date_account(item_one_info_in_act_f_Exel)
                 if date_account:
                     list_name_act_date_nds.append(date_account)
@@ -263,7 +265,7 @@ def add_act_in_main_f(empty_line_in_table, all_list_name_act_date_nds):
 
     """
 
-    #[[дата, номер акта, номер счета, прибор, сумма без НДС]...]
+    # [[дата, номер акта, номер счета, прибор, сумма без НДС]...]
     # Можно добавить проверку по названию прибора
     i = 0
     wb = xw.Book('Уралтест.xlsx')
@@ -316,9 +318,37 @@ def check_acconts_main_table(sort_all_list_name_account_date_nds, all_num_accoun
     list_double_account = []
     list_unique = []
     key_in_list_sort_all_list = []
-    for attr_accont in sort_all_list_name_account_date_nds:
-       if attr_accont[0] in all_num_accounts_in_table:
-            list[list_double_account]
+    # Надо проверить на работо способность
+    # Формируем списки с уникальными и повторяющимися значениями
+    # list_double_account спимок с характеристиками дублей
+    # key_in_list_sort_all_list список только с номерами счетов дублей
+    for attr_account in sort_all_list_name_account_date_nds:
+        if attr_account[0] in all_num_accounts_in_table:
+            list_double_account.append(attr_account)
+            key_in_list_sort_all_list.append(attr_account[0])
+        else:
+            list_unique.append(attr_account[0])
+
+    if len(list_double_account):
+        pass
+    else:
+        print("Номера счетов которые вы добавляете совпадают с существующими в таблице\n"
+              "Номера счетов| Сумма | Наименование:\n")
+        for item in list_double_account:
+            print('item{0:10}|{1:10}|{2:20}'.format(item[0], item[4], item[3]))
+        print('Добавить счета в таблицу? Варианты:'
+              '1 Добавить все счета\n'
+              '2 Добавить только номера конкретных счетов\n'
+              '3 Не добавлять дублирующиеся номера счетов, добавить только уникальные\n')
+        user_input = input('Введите число')
+        if user_input == 3:
+            return list_unique
+        elif user_input == 2:
+            pass
+        elif user_input == 1:
+            return  list_unique + key_in_list_sort_all_list
+
+
     """
     Остановился на том что решил проверять весь список
     если добавляемй счет совпадает с имеющимся добавляем его номер в список и его позицию в общем списке
@@ -356,8 +386,6 @@ def added_account():
 
         # Функция возвращает список номеров всех счтетов в таблице Уралтест
         all_num_accounts_in_table = get_all_num_accounts_in_table(empty_line_in_table)
-
-
 
         # Функция проверяет нет ли приборов с таким же счетом
         sort_all_list_name_account_date_nds = check_acconts_main_table(sort_all_list_name_account_date_nds,
