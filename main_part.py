@@ -293,6 +293,7 @@ def get_all_num_accounts_in_table(empty_line_in_table):
 
     """
     all_num_accounts_in_table = []
+
     wb = xw.Book('Уралтест.xlsx')
     open_f_act = xlrd.open_workbook('Уралтест.xlsx')
     sheet_f_act = open_f_act.sheet_by_index(0)
@@ -301,6 +302,7 @@ def get_all_num_accounts_in_table(empty_line_in_table):
         num_account_main_table = sheet_f_act.row_values(i)[4]
         if num_account_main_table:
             all_num_accounts_in_table.append(int(sheet_f_act.row_values(i)[4]))
+
     wb.close()
     return all_num_accounts_in_table
 
@@ -329,8 +331,8 @@ def check_acconts_main_table(sort_all_list_name_account_date_nds, all_num_accoun
         else:
             list_unique.append(attr_account[0])
 
-    if len(list_double_account):
-        pass
+    if list_double_account:
+        return sort_all_list_name_account_date_nds
     else:
         print("Номера счетов которые вы добавляете совпадают с существующими в таблице\n"
               "Номера счетов| Сумма | Наименование:\n")
@@ -338,15 +340,15 @@ def check_acconts_main_table(sort_all_list_name_account_date_nds, all_num_accoun
             print('item{0:10}|{1:10}|{2:20}'.format(item[0], item[4], item[3]))
         print('Добавить счета в таблицу? Варианты:'
               '1 Добавить все счета\n'
-              '2 Добавить только номера конкретных счетов\n'
-              '3 Не добавлять дублирующиеся номера счетов, добавить только уникальные\n')
+              '2 Добавить только номера конкретных счетов(Пока не работает)\n'
+              '3 Не добавлять дублирующиеся номера счетов, добавить только уникальные(Пока не работает)\n')
         user_input = input('Введите число')
-        if user_input == 3:
-            return list_unique
+        if user_input == 1:
+            return sort_all_list_name_account_date_nds
         elif user_input == 2:
             pass
-        elif user_input == 1:
-            return  list_unique + key_in_list_sort_all_list
+        elif user_input == 3:
+            pass
 
 
     """
