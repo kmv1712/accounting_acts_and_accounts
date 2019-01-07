@@ -171,7 +171,7 @@ def get_sort_all_list_name_account_date_nds(all_list_name_account_date_nds):
 def add_info_in_main_f(empty_line_in_table, sort_all_list_name_account_date_nds):
     wb = xw.Book('Уралтест.xlsx')
     for i in range(0, len(sort_all_list_name_account_date_nds)):
-        xw.Range('A' + str(empty_line_in_table)).value = sort_all_list_name_account_date_nds[i][2]
+        xw.Range('A' + str(empty_line_in_table)).value = str(sort_all_list_name_account_date_nds[i][2])
         xw.Range('E' + str(empty_line_in_table)).value = sort_all_list_name_account_date_nds[i][0]
         xw.Range('F' + str(empty_line_in_table)).value = sort_all_list_name_account_date_nds[i][1]
         '''Добавить модуль тнике для графического сообщения пользователю о не верно распозаной цене'''
@@ -184,7 +184,7 @@ def add_info_in_main_f(empty_line_in_table, sort_all_list_name_account_date_nds)
             print(
                 '\nПровертье цену (возможно ошибка при распознание)\nСЧЕТ: {0}\nРаспознаная цена: {1}\n'
                 'введите цену если она не соответсвует цене в документе или нажмите Enter'
-                    .format(sort_all_list_name_account_date_nds[i][0], sort_all_list_name_account_date_nds[i][3])
+                .format(sort_all_list_name_account_date_nds[i][0], sort_all_list_name_account_date_nds[i][3])
             )
             user_check = input()
 
@@ -193,8 +193,8 @@ def add_info_in_main_f(empty_line_in_table, sort_all_list_name_account_date_nds)
             else:
                 xw.Range('G' + str(empty_line_in_table)).value = sort_all_list_name_account_date_nds[i][3]
         empty_line_in_table = empty_line_in_table + 1
-        wb.save()
-        wb.close()
+    wb.save()
+    wb.close()
 
 
 def get_act_number(item_one_info_in_act_f_Exel):
@@ -298,7 +298,7 @@ def get_all_num_accounts_in_table(empty_line_in_table):
     open_f_act = xlrd.open_workbook('Уралтест.xlsx')
     sheet_f_act = open_f_act.sheet_by_index(0)
     info_in_act = [sheet_f_act.row_values(rownum) for rownum in range(sheet_f_act.nrows)]
-    for i in range(3, empty_line_in_table):
+    for i in range(3, empty_line_in_table - 1):
         num_account_main_table = sheet_f_act.row_values(i)[4]
         if num_account_main_table:
             all_num_accounts_in_table.append(int(sheet_f_act.row_values(i)[4]))
@@ -325,25 +325,25 @@ def check_acconts_main_table(sort_all_list_name_account_date_nds, all_num_accoun
     # list_double_account спимок с характеристиками дублей
     # key_in_list_sort_all_list список только с номерами счетов дублей
     for attr_account in sort_all_list_name_account_date_nds:
-        if attr_account[0] in all_num_accounts_in_table:
+        if int(str(attr_account[0]).replace('0', '')) in all_num_accounts_in_table:
             list_double_account.append(attr_account)
             key_in_list_sort_all_list.append(attr_account[0])
         else:
             list_unique.append(attr_account[0])
 
-    if list_double_account:
+    if not list_double_account:
         return sort_all_list_name_account_date_nds
     else:
         print("Номера счетов которые вы добавляете совпадают с существующими в таблице\n"
               "Номера счетов| Сумма | Наименование:\n")
         for item in list_double_account:
-            print('item{0:10}|{1:10}|{2:20}'.format(item[0], item[4], item[3]))
-        print('Добавить счета в таблицу? Варианты:'
+            print('{0:10}|{1:10}|{2:20}'.format(item[0], item[3], item[2]))
+        print('Добавить счета в таблицу? Варианты:\n'
               '1 Добавить все счета\n'
               '2 Добавить только номера конкретных счетов(Пока не работает)\n'
               '3 Не добавлять дублирующиеся номера счетов, добавить только уникальные(Пока не работает)\n')
         user_input = input('Введите число')
-        if user_input == 1:
+        if int(user_input) == 1:
             return sort_all_list_name_account_date_nds
         elif user_input == 2:
             pass
